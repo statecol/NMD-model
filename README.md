@@ -17,6 +17,8 @@ To use the R code, it is recommended to download Hypothetical.data.mat.rdata or 
  
  
 ===================================================================================================
+ 
+
 setwd("your path to the local directory of the downloaded rdata files") 
 
 load('bci.Xi.rdata') 
