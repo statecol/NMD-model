@@ -6,6 +6,22 @@ The difference between NMD and NBD models is that NMD model is suited to model n
 
 Before using the code here, it is necessary to introduct a bit about the documents stored here:    
 
-1, NMD-or-NBD-estimation.R file contains all the functions for implementing and fitting the NMD or NBD model.
-2, Hypothetical.data.mat.rdata is a hypothetical species-site abundance dataset.  The data file contains 100 species across 50 local sites.
+1, NMD-or-NBD-estimation.R file contains all the functions for implementing and fitting the NMD or NBD model. 
 
+2, Hypothetical.data.mat.rdata is a hypothetical species-site abundance dataset in R data file format.  The data file contains 100 species across 50 sites. This dataset demonstrates an example of nonrandom distribution of species or local species abundance distribution (local SAD). 
+
+3, bci.Xi.rdata is another R data file containing the empirical abundance of 300 tree species recorded in BCI forest plot (2005 census). This dataset demonstrates an example of regional species abundance distribution (regional SAD). 
+
+To use the R code, it is recommended to download Hypothetical.data.mat.rdata or bci.Xi.rdata, save them into a local directory. Open R and type the following R commands:
+
+setwd("your path to the local directory of the downloaded rdata files")
+load('bci.Xi.rdata')
+Xi = bci.Xi
+xmax = max(Xi)
+x = factor(Xi, levels = 1:xmax)
+f = table(x)
+print(NMD.NBD.Estimation(ini.par = c(0.2, 0.2), f=f, m=1))
+
+
+load('Hypothetical.data.mat.rdata')
+print(NMD.DataMatrix.Estimation(ini.par = c(0.2, 0.2), Xi.mat=Hypothetical.data.mat, m=1))
