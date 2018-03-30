@@ -12,15 +12,17 @@ Before using the code here, it is necessary to introduct a bit about the documen
 
 3, bci.Xi.rdata is another R data file containing the empirical abundance of 300 tree species recorded in BCI forest plot (2005 census). This dataset demonstrates an example of regional species abundance distribution (regional SAD). 
 
-To use the R code, it is recommended to download Hypothetical.data.mat.rdata and bci.Xi.rdata, save them into a local directory. Open R and type the following R commands: 
+To use the R code, it is recommended to download Hypothetical.data.mat.rdata and bci.Xi.rdata, save them into the same local directory where NMD-or-NBD-estimation.R file was saved. Open R and type the following R commands: 
 
  
  
  
 =================================================================================
- 
 
-setwd("your path to the local directory of the downloaded rdata files") 
+setwd("your path to the local working directory of the downloaded rdata and R files") 
+
+
+source("NMD-or-NBD-estimation.R") 
 
 load('bci.Xi.rdata') 
 
