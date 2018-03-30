@@ -1,17 +1,17 @@
-rm(list = ls())
 library(nlme)
 
 
 # The following R function cond.logf() is the log likelihood function 
 #   whose antilogarithm is the likelihood function in Eq. 8b of the main text.
 
-# There are three arguments in the function:
-#   The first one is a numerical vector of the two parameters a and b.
+# There are three arguments in this R function:
+#   The first one is a numeric vector of the two parameters a and b.
 #       a: the aggregation parameter denoted by k in the main text
-#       b: it is a reparametrized parameter transfered from b = m*u/a 
-#   The second one is a numerical vector of the species frequency counts: f1, f2, ...
-#       f1 is the number of singletons, f2 is the number of doubletons, and so forth.
-#   The third one is m: the area size of the local sample; the default was set at m=1.
+#       b: it is a reparametrized parameter by b = m*u/a 
+#   The second one is a numeric vector of the species frequency counts: f1, f2, ...
+#       in which f1 is the number of singletons, f2 is the number of doubletons, and so forth.
+#   The third one is m: the area size of the local sample; the default was set at m=1. 
+#   Note that the value of m does not influence the estimation of k and u. 
 
 ############### Log likelihood function #################
 cond.logf <- function(x, f, m=1) {
@@ -28,7 +28,7 @@ cond.logf <- function(x, f, m=1) {
     log1p(-pp) + a * log1p(pp - 1) - log(1 - pp^a)
   
   ## This term is solely related to observed data, 
-  ## and thus has no effect on the MLEs of parameters.
+  ## and thus it has no effect on the MLEs of parameters.
   ## However, it needs to include this term when calculating AIC. 
   const = lgamma(sum(f)+1)-sum(lgamma(f+1))
   
@@ -76,6 +76,7 @@ NMD.NBD.Estimation = function(ini.par = c(0.2, 0.003), f=NULL, xi=NULL, m=1){
   ## The resulting MLEs of a and b
   cond.ahat = cond.logfSol$par[1]
   cond.bhat = cond.logfSol$par[2]
+  ## the MLE of u is back transformed from the reparametrizing formula b = m*u/a 
   cond.uhat = cond.ahat*cond.bhat/m
   
   ## Calculate the observed information matrix in Eq. S1 of the supporting information 
@@ -86,11 +87,11 @@ NMD.NBD.Estimation = function(ini.par = c(0.2, 0.003), f=NULL, xi=NULL, m=1){
   ## the estimated variance of b  
   var.b = solve(Fisher.Info)[2,2]
   
-  ## the estimated variance of u (mean abundance) which are back transformed from u = ab/m
+  ## the estimated variance of u (mean abundance) which is derived from the transformation u = ab/m
   var.u = matrix(c(cond.bhat,cond.ahat)/m, nrow=1)%*%
     solve(Fisher.Info)%*%matrix(c(cond.bhat,cond.ahat)/m, ncol=1)
   
-  ## Creating a R dataframe to store the computing results
+  ## Creating an R dataframe to store the computing results
   output = NULL
   output=rbind(output, c(round(cond.ahat,5), round(sqrt(var.a),5), 
                          round(max(cond.ahat-1.96*sqrt(var.a),0),5), round(cond.ahat+1.96*sqrt(var.a),5)))
@@ -131,13 +132,14 @@ log.MD = function(x){
 #   whose antilogarithm is the likelihood function in 
 #   Eq. 6 in the main text.
 # There are three arguments in the function:
-#   The first one (x) is a numerical vector of the two parameters a and b.
+#   The first one (x) is a numeric vector of the two parameters a and b.
 #       a: the aggregation parameter denoted by k in the main text
-#       b: it is a reparametrized parameter transfered from b = m*u/a 
-#   The second one (Xi.mat) is a numerical matrix of abundances, in which, 
+#       b: it is a reparametrized parameter by b = m*u/a 
+#   The second one (Xi.mat) is a numeric matrix of abundances, in which, 
 #       the row index represents species label and the column index represents 
 #       the quadrat index.
 #   The third one (m) is the quadrat size; the default was set at m=1.
+#   Note that the value of m does not influence the estimation of k and u. 
 ############### NMD likelihood #################
 NMD.logf <- function(x, Xi.mat, m=1) {
   a <- x[1]
@@ -177,7 +179,7 @@ NMD.logf <- function(x, Xi.mat, m=1) {
 ##  There are three arguments in the function:
 ##  ini.par: the initial value of parameters a and b 
 ##          when numerically calculating the MLEs of a and b
-##  The second one (Xi.mat) is a numerical matrix of abundances as introduced above.
+##  The second one (Xi.mat) is a numeric matrix of abundances as introduced above.
 #   The third one (m) is the quadrat size; the default was set at m=1.
 NMD.DataMatrix.Estimation = function(ini.par = c(0.2, 0.003), Xi.mat, m=1){
 
@@ -197,7 +199,7 @@ NMD.DataMatrix.Estimation = function(ini.par = c(0.2, 0.003), Xi.mat, m=1){
   ## the estimated variance of b  
   var.b = solve(Fisher.Info)[2,2]
   
-  ## the estimated variance of u (mean abundance) which are back transformed from u = ab/m
+  ## the estimated variance of u (mean abundance) which is derived from the transformation u = ab/m
   var.u = matrix(c(cond.bhat,cond.ahat)/m, nrow=1)%*%
     solve(Fisher.Info)%*%matrix(c(cond.bhat,cond.ahat)/m, ncol=1)
   
@@ -216,26 +218,3 @@ NMD.DataMatrix.Estimation = function(ini.par = c(0.2, 0.003), Xi.mat, m=1){
   
   output
 } ### end of R function NMD.DataMatrix.Estimation()     
-
-
-
-
-
-
-# #### An illustrating example:
-# load('~/Dropbox/RCode/data/BCI.April2015/GenerateQuadData/bci.full2005_AbundanceVector.Rdata')
-# Xi = bci.full2005_AbundanceVector
-
-load('~/Dropbox/RCode/data/BCI.April2015/GenerateQuadData/bci.full2005_AbundanceMatrix100X100.Rdata')
-Xi.mat = bci.full2005_AbundanceMatrix100X100
-
-
-Xi = apply(Xi.mat,1,sum) 
-
-xmax = max(Xi)
-x = factor(Xi, levels = 1:xmax)
-f = table(x)
-
-print(NMD.NBD.Estimation(ini.par = c(0.2, 0.2), f=f, m=1))
-
-print(NMD.DataMatrix.Estimation(ini.par = c(0.2, 0.2), Xi.mat=sim.mat, m=1))
